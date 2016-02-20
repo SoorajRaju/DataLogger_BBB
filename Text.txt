@@ -1,0 +1,46 @@
+New Start
+0) Password Change
+0.1) Date 
+/usr/sbin/ntpdate -b -s -u 0.us.pool.ntp.org
+dpkg-reconfigure tzdata
+1) Wifi Configuration: HOME-2E72 
+ifup wlan1
+1.b) ifconfig usb0 192.168.7.2
+route add default gw 192.168.7.1
+
+2) CAN overlay layout
+enable-canbus-on-the-beaglebone-black
+edit 11660
+3) Python-can
+
+sudo modprobe vcan
+sudo ip link add vcan0 type vcan
+sudo ip link set vcan0 up
+
+cd ~/python-can
+python setup.py install
+
+cansend vcan0 033343a1#FFFFFFFF
+cansend vcan0 033343a1#12345678
+cansend vcan0 033343a1#00000000
+cansend vcan0 033343a1#DDDDDDDD
+
+ip link set can0 type can bitrate 500000 listen-only on
+ifconfig can0 up
+candump -cae can0,0:0,#FFFFFFFF
+
+4) Bluetooth and WiFi
+6C:83:
+ifconfig wlan1
+ifup wlan1
+
+service bluetooth status
+#sudo hcitool scan
+#sudo rfcomm connect hci0 6C:83:
+sudo sdptool add --channel=17 SP
+sdptool browse local
+sudo rfcomm listen /dev/rfcomm0 17
+/dev# cat rfcomm0
+
+cd /dev
+./Bluetooth.sh
